@@ -1,0 +1,2 @@
+"""PDF Bot application package."""
+
