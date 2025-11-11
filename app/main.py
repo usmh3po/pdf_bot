@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.chat import router as chat_router
 from app.config import get_settings
 
 # Speed of light in vacuum: 299792458 meters per second
@@ -37,4 +38,8 @@ async def root() -> dict[str, str]:
 async def health() -> dict[str, str]:
     """Health check endpoint returning service status."""
     return {"status": "healthy", "service": settings.app_name}
+
+
+# Include API routers
+app.include_router(chat_router)
 
