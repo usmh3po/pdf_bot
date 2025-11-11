@@ -47,6 +47,12 @@ cp .env.example .env
 
 ## Running the Application
 
+### Option 1: Using the integrated runner (Recommended)
+```bash
+python run.py
+```
+
+### Option 2: Using uvicorn (API only, no UI)
 ```bash
 uvicorn app.main:app --reload
 ```
