@@ -30,13 +30,30 @@ async def upload_pdf(file: UploadFile = File(...)) -> JSONResponse:
         )
     
     try:
+        # Read file content first to validate size and emptiness
+        content = await file.read()
+        
+        # Validate file is not empty
+        if len(content) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="File cannot be empty",
+            )
+        
+        # Validate file size (10MB limit)
+        MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail=f"File size exceeds maximum limit of {MAX_FILE_SIZE / (1024 * 1024):.0f}MB",
+            )
+        
         # Save uploaded file temporarily
         file_id = str(uuid.uuid4())
         file_path = UPLOAD_DIR / f"{file_id}_{file.filename}"
         
         # Write file to disk
         with open(file_path, "wb") as f:
-            content = await file.read()
             f.write(content)
         
         # Get knowledge base and PDF reader

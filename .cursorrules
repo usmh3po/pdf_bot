@@ -1,0 +1,79 @@
+# PDF Bot Project Rules
+
+## Code Style
+- Use Python 3.13+ features (type unions `str | None`, pattern matching, etc.)
+- Follow PEP 8 with 100 character line length (configured in pyproject.toml)
+- Use type hints for all functions and variables
+- Use Pydantic models for data validation and settings
+- Prefer async/await for I/O operations
+- Use f-strings for string formatting
+
+## Architecture
+- **FastAPI** for API layer with async endpoints
+- **Agno** for agent orchestration and knowledge management
+- **NiceGUI** for UI components (thin layer, minimal logic)
+- **PostgreSQL with pgvector** for vector storage and semantic search
+- **SQLite** for session/memory management (via Agno)
+- Keep business logic separate from API endpoints
+- Use dependency injection for configuration and services
+
+## File Organization
+- API endpoints in `app/api/`
+- Agent configuration in `app/agent/`
+- UI components in `app/ui/`
+- Models in `app/api/models.py`
+- Configuration in `app/config.py`
+- Tests mirror the app structure in `tests/`
+
+## Error Handling
+- Validate all inputs (file type, size, content, message length)
+- Provide clear, user-friendly error messages
+- Use appropriate HTTP status codes (400, 404, 413, 500)
+- Clean up resources (files, connections) on errors
+- Log errors for debugging (when logging is implemented)
+
+## Testing
+- Write unit tests for all API endpoints
+- Write integration tests for end-to-end flows
+- Use pytest with async support (`pytest-asyncio`)
+- Mock external dependencies (OpenAI API, databases, file system)
+- Test error cases and edge cases
+- Keep tests in `tests/unit/` and `tests/integration/`
+
+## Async Operations
+- Use `asyncio` for async operations
+- Run blocking operations (like Agno knowledge methods) in thread executors
+- Use `async/await` consistently for I/O operations
+- Handle event loop conflicts properly
+
+## Type Safety
+- Use Pydantic models for request/response validation
+- Use type hints throughout (no `Any` unless necessary)
+- Use `|` for union types (Python 3.10+ syntax)
+- Use `Optional[X]` only when needed for compatibility
+
+## Documentation
+- Add docstrings to all public functions and classes
+- Use Google-style or NumPy-style docstrings
+- Document complex logic and design decisions
+- Keep README.md updated with setup and usage instructions
+
+## Security
+- Never commit `.env` files or API keys
+- Validate and sanitize all user inputs
+- Use environment variables for sensitive configuration
+- Implement file size limits for uploads
+- Consider rate limiting for production
+
+## Performance
+- Use streaming responses for long-running operations
+- Cache knowledge base instances (singleton pattern)
+- Optimize database queries
+- Consider connection pooling for PostgreSQL
+
+## Git Workflow
+- Use meaningful commit messages
+- Keep commits focused and atomic
+- Don't commit generated files, databases, or uploads
+- Follow the `.gitignore` patterns
+
