@@ -65,3 +65,7 @@ tests/data/*.pdf
 # Assignment document (not part of the project)
 Python Engineer Assignment.pdf
 
+# Agno database
+agno.db
+*.db
+

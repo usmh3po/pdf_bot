@@ -11,11 +11,18 @@ router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 
 async def _stream_agent_response(agent: Agent, message: str, session_id: str | None = None) -> str:
-    """Stream agent response token by token."""
+    """Stream agent response token by token using Agno's built-in memory system."""
     try:
+        import uuid
+        
+        # Use session_id as user_id for Agno's memory system
+        # If no session_id provided, generate one (Agno will create memories for this user)
+        user_id = session_id if session_id else str(uuid.uuid4())
+        
         # Run agent and stream the response
-        # agent.arun() returns a coroutine that when awaited gives an async generator
-        response_coro = agent.arun(input=message, stream=True)
+        # Agno automatically maintains conversation history per user_id when enable_user_memories=True
+        # The agent will automatically include previous conversation context
+        response_coro = agent.arun(input=message, stream=True, user_id=user_id)
         
         # Check if it's a coroutine (needs await) or already an async generator
         import inspect
@@ -24,16 +31,23 @@ async def _stream_agent_response(agent: Agent, message: str, session_id: str | N
         else:
             response_stream = response_coro
 
-        # Now iterate over the async generator
+        # Stream the response chunks
         async for chunk in response_stream:
             if chunk:
                 # Handle both string chunks and objects with content attribute
+                chunk_content = ""
                 if isinstance(chunk, str):
-                    yield chunk
+                    chunk_content = chunk
                 elif hasattr(chunk, 'content'):
-                    yield chunk.content
+                    chunk_content = chunk.content
                 else:
-                    yield str(chunk)
+                    chunk_content = str(chunk)
+                
+                yield chunk_content
+        
+        # Yield session ID (user_id) as metadata for UI to track
+        # Format: special marker so UI can extract it
+        yield f'\n__SESSION_ID__:{user_id}__'
                 
     except Exception as e:
         # Yield error as JSON
@@ -43,7 +57,7 @@ async def _stream_agent_response(agent: Agent, message: str, session_id: str | N
 
 @router.post("/stream")
 async def stream_chat(request: ChatMessage) -> StreamingResponse:
-    """Stream agent response token by token."""
+    """Stream agent response token by token with session support."""
     try:
         agent = create_agent()
         

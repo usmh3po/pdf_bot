@@ -8,6 +8,8 @@ import httpx
 def create_chat_ui() -> None:
     async def send_message() -> None:
         """Send message and stream response."""
+        nonlocal session_id
+        
         message = message_input.value.strip()
         if not message:
             return
@@ -38,7 +40,7 @@ def create_chat_ui() -> None:
                 async with client.stream(
                     "POST",
                     "http://localhost:8000/api/chat/stream",
-                    json={"message": message, "session_id": None},
+                    json={"message": message, "session_id": session_id},
                     headers={"Accept": "text/event-stream"},
                 ) as response:
                     if response.status_code != 200:
@@ -56,6 +58,17 @@ def create_chat_ui() -> None:
                             line, buffer = buffer.split("\n\n", 1)
                             if line.startswith("data: "):
                                 content = line[6:]  # Remove "data: " prefix
+                                
+                                # Check for session ID in response
+                                if "__SESSION_ID__:" in content:
+                                    # Extract session ID
+                                    parts = content.split("__SESSION_ID__:")
+                                    if len(parts) > 1:
+                                        session_part = parts[1].split("__")[0]
+                                        session_id = session_part
+                                        # Remove session ID from displayed content
+                                        content = parts[0]
+                                
                                 # Append to response
                                 current_text = response_content.text
                                 response_content.text = current_text + content
@@ -81,6 +94,9 @@ def create_chat_ui() -> None:
     """Create the chat UI with streaming support."""
     ui.page_title("PDF Bot - Chat")
     
+    # Session ID for maintaining chat history across messages
+    session_id: str | None = None
+    
     with ui.column().classes("w-full max-w-4xl mx-auto p-4 gap-4"):
         ui.label("PDF Bot Chat").classes("text-2xl font-bold")
         
@@ -104,6 +120,7 @@ def create_chat_ui() -> None:
         # Status indicator
         status_label = ui.label("").classes("text-sm text-gray-500")
     
+
 
     
 
