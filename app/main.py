@@ -45,6 +45,10 @@ async def health() -> dict[str, str]:
 # Include API routers
 app.include_router(chat_router)
 
+# Import upload router
+from app.api.upload import router as upload_router
+app.include_router(upload_router)
+
 
 # Setup NiceGUI UI - this should handle the root path "/"
 @ui.page("/")

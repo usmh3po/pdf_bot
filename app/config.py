@@ -18,6 +18,13 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8111
 
+    # PostgreSQL configuration for Knowledge base
+    postgres_host: str = "localhost"
+    postgres_port: int = 5433
+    postgres_user: str = "postgres"
+    postgres_password: str = ""
+    postgres_db: str = "pdf_bot"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

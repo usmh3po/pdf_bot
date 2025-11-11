@@ -69,3 +69,8 @@ Python Engineer Assignment.pdf
 agno.db
 *.db
 
+# Uploaded files
+uploads/
+*.pdf
+!tests/data/*.pdf
+

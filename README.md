@@ -42,7 +42,37 @@ pip install -e ".[dev]"
 4. Configure environment variables:
 ```bash
 cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
+# Edit .env and add your OPENAI_API_KEY and PostgreSQL settings
+```
+
+5. Set up PostgreSQL database:
+```bash
+# Connect to PostgreSQL (on port 5433)
+psql -h localhost -p 5433 -U postgres
+
+# Create the database
+CREATE DATABASE pdf_bot;
+
+# Connect to the new database
+\c pdf_bot
+
+# Enable pgvector extension (required for vector search)
+CREATE EXTENSION IF NOT EXISTS vector;
+
+# Verify extension is installed
+\dx
+
+# Exit PostgreSQL
+\q
+```
+
+**Note:** Make sure your `.env` file includes the PostgreSQL connection settings:
+```env
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5433
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=pdf_bot
 ```
 
 ## Running the Application
