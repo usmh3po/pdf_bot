@@ -60,6 +60,8 @@ dmypy.json
 
 # Project specific
 tests/data/*.pdf
+!tests/data/test_document.pdf
+!tests/data/empty.pdf
 !tests/data/.gitkeep
 
 # Assignment document (not part of the project)

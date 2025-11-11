@@ -22,6 +22,9 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 @router.post("/pdf")
 async def upload_pdf(file: UploadFile = File(...)) -> JSONResponse:
     """Upload a PDF file and add it to the knowledge base."""
+    # Initialize variables for cleanup
+    file_path: Path | None = None
+    
     # Validate file type
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(
@@ -88,10 +91,16 @@ async def upload_pdf(file: UploadFile = File(...)) -> JSONResponse:
             },
         )
         
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is (validation errors)
+        raise
     except Exception as e:
-        # Clean up file on error
-        if file_path.exists():
-            file_path.unlink()
+        # Clean up file on error (if file was created)
+        if file_path and file_path.exists():
+            try:
+                file_path.unlink()
+            except OSError:
+                pass  # Ignore cleanup errors
         
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
